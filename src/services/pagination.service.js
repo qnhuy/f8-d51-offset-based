@@ -5,7 +5,7 @@ class Pagination {
     }
 
     service.pagination = async function (page = 1, limit = 20, conditions) {
-      limit = Math.min(limit, 500)
+      limit = limit < 1 ? 20 : Math.min(limit, 500)
       const offset = (page - 1) * limit
 
       const rows = await service.model.findAll(limit, offset, conditions)
@@ -15,11 +15,8 @@ class Pagination {
         current_page: page,
         total,
         per_page: limit,
-      }
-
-      if (rows.length > 0) {
-        pagination.from = offset + 1
-        pagination.to = offset + rows.length
+        from: rows.length > 0 ? offset + 1 : null,
+        to: rows.length > 0 ? rows.length : null,
       }
 
       return {
